@@ -1,30 +1,15 @@
 import streamlit as st
-import spacy
-import requests
-from bs4 import BeautifulSoup
-import en_core_web_sm
+from googletrans import Translator
 
-st.title("NER Demo")
+st.header('Machine Translation Demo')
+input_text = st.text_area("Please enter the text", value='')
+option = st.selectbox(
+    'To which language do you wish to translate this text to?',
+    ('Malayalam', 'Hindi', 'Tamil')
+)
 
-nlp = en_core_web_sm.load()
+if st.button('Translate'):
+    translator = Translator()
+    translation = translator.translate(input_text, dest=option.lower())
+    st.write(translation.text)
 
-text1 = st.text_area("Enter URL")
-text2 = st.text_area("Enter a paragraph")
-
-if st.button("Analyse"):
-    if text1:
-        try:
-            response = requests.get(text1)
-            soup = BeautifulSoup(response.content, 'html.parser')
-            text = soup.get_text()
-            doc = nlp(text)
-            entities = [(X.text, X.label_) for X in doc.ents]
-            st.success(entities)
-        except:
-            st.error("Error opening URL. Please make sure it's valid.")
-    elif text2:
-        doc = nlp(text2)
-        entities = [(X.text, X.label_) for X in doc.ents]
-        st.success(entities)
-    else:
-        st.warning("Please enter a URL or a paragraph.")
